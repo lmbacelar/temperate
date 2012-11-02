@@ -1,4 +1,4 @@
-When /^I read (.+) ohms on a standard rtd of type (.*)$/ do |r, t|
+When /^I read (.+) ohms on a rtd of type (.*)$/ do |r, t|
   @temperature = RTD.temperature(type: t.downcase.to_sym, resistance: r.to_f)
 end
 
