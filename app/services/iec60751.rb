@@ -13,7 +13,7 @@ class IEC60751
   def self.temperature(params={})
     parse params
     raise 'resistance is required!' unless @@r
-    cv_temp(t: temp_celsius, from: :celsius, to: @@unit)
+    Unit.convert(t: temp_celsius, from: :celsius, to: @@unit)
   end
 
 private
@@ -27,7 +27,7 @@ private
     @@b           = params[:B]           || -5.7750e-07
     @@c           = params[:C]           || -4.1830e-12
 
-    @@tc          = cv_temp(t: @@t, from: @@unit, to: :celsius) if @@t
+    @@tc          = Unit.convert(t: @@t, from: @@unit, to: :celsius) if @@t
   end
 
   def self.approximate_temperature
@@ -62,38 +62,6 @@ private
       @@tc -= (r - @@r) / s
     end
     raise 'iteration on reverse function did not converge!'
-  end
-
-
-
-
-  def self.to_celsius(from)
-    # returns array of gain, offset
-    case from.downcase.to_sym
-    when :celsius    then [1    ,  0]
-    when :kelvin     then [1    , -273.15]
-    when :fahrenheit then [1/1.8, -32/1.8]
-    when :rankine    then [1/1.8, -273.15]
-    else raise 'unexpected unit!'
-    end
-  end
-  
-  def self.cv_temp(params)
-    t     = params.fetch(:t)
-    from  = params.fetch(:from).downcase.to_sym
-    to    = params.fetch(:to).downcase.to_sym
-    delta = params[:delta] || false
-
-    return t if from == to
-    if from != :celsius
-      factor = to_celsius(from)
-      t = t * factor[0] + (delta ? 0 : factor[1])
-    end
-    if to != :celsius
-      factor = to_celsius(to)
-      t = (t - (delta ? 0 : factor[1]) / factor[0])
-    end
-    t
   end
 end
 

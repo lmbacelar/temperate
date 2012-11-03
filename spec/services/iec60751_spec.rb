@@ -1,4 +1,5 @@
 require_relative '../../app/services/iec60751'
+require_relative '../../app/services/unit'
 
 describe IEC60751 do
   context 'temperature computation' do
