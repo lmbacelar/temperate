@@ -24,6 +24,10 @@ describe IEC60751 do
       expect { IEC60751.temperature(r:  18.00) }.to raise_error
       expect { IEC60751.temperature(r: 391.00) }.to raise_error
     end
+
+    it 'raises error when no resistance is set' do
+      expect { IEC60751.temperature }.to raise_error
+    end
   end
 
   context 'resistance computation' do
