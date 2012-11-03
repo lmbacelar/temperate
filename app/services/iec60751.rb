@@ -1,8 +1,8 @@
 class IEC60751
 
   MAX_ITERATIONS = 50
-  LLIMIT = 200.10
-  ULIMIT = 850.10
+  LLIMIT = -200.10
+  ULIMIT =  850.10
                   
   def self.resistance(params={})
     parse params
@@ -40,7 +40,7 @@ private
 
   def self.res_celsius(params={})
     unless params[:skip_check]
-      raise 'out of bounds!' if @@tc < -LLIMIT || @@tc > ULIMIT
+      raise 'out of bounds!' if @@tc < LLIMIT || @@tc > ULIMIT
     end
     if @@tc < 0.00
       @@r0*(1 + @@a*@@tc + @@b*@@tc**2 + @@c*(@@tc - 100)*@@tc**3)
@@ -56,7 +56,7 @@ private
       s = (@@r - @@r0) / @@tc
       r = res_celsius(skip_check: true)
       if (r - @@r).abs < s * @@max_error
-        raise 'out of bounds!' if (@@tc < -LLIMIT || @@tc > ULIMIT)
+        raise 'out of bounds!' if (@@tc < LLIMIT || @@tc > ULIMIT)
         return @@tc
       end
       @@tc -= (r - @@r) / s
