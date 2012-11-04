@@ -1,4 +1,4 @@
-require_relative "../../app/services/unit.rb"
+require_relative '../../app/services/unit.rb'
 
 describe Unit do
   context 'conversions' do
