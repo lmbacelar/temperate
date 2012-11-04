@@ -6,13 +6,13 @@ class IEC60751
                   
   def self.resistance(params={})
     parse params
-    raise 'temperature is required!' unless @@t
+    raise ArgumentError.new('t is required!') unless @@t
     res_celsius
   end
 
   def self.temperature(params={})
     parse params
-    raise 'resistance is required!' unless @@r
+    raise ArgumentError.new('r is required!') unless @@r
     Unit.convert(t: temp_celsius, from: :celsius, to: @@unit)
   end
 
@@ -40,7 +40,7 @@ private
 
   def self.res_celsius(params={})
     unless params[:skip_check]
-      raise 'out of bounds!' if @@tc < LLIMIT || @@tc > ULIMIT
+      raise RangeError.new('t is out of range') if @@tc < LLIMIT || @@tc > ULIMIT
     end
     if @@tc < 0.00
       @@r0*(1 + @@a*@@tc + @@b*@@tc**2 + @@c*(@@tc - 100)*@@tc**3)
@@ -56,7 +56,7 @@ private
       s = (@@r - @@r0) / @@tc
       r = res_celsius(skip_check: true)
       if (r - @@r).abs < s * @@max_error
-        raise 'out of bounds!' if (@@tc < LLIMIT || @@tc > ULIMIT)
+        raise RangeError.new('t is out of range') if (@@tc < LLIMIT || @@tc > ULIMIT)
         return @@tc
       end
       @@tc -= (r - @@r) / s

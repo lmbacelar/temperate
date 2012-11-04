@@ -21,13 +21,13 @@ describe IEC60751 do
       IEC60751.temperature(r: 390.4811, unit: :kelvin).should be_within(0.0001).of(1123.1500)
     end
 
-    it 'raises error when out of bounds' do
-      expect { IEC60751.temperature(r:  18.00) }.to raise_error
-      expect { IEC60751.temperature(r: 391.00) }.to raise_error
+    it 'raises error when out of range' do
+      expect { IEC60751.temperature(r:  18.00) }.to raise_error(RangeError, /t.*out.*range/)
+      expect { IEC60751.temperature(r: 391.00) }.to raise_error(RangeError, /t.*out.*range/)
     end
 
     it 'raises error when no resistance is set' do
-      expect { IEC60751.temperature }.to raise_error
+      expect { IEC60751.temperature }.to raise_error(ArgumentError, /r.*required/)
     end
   end
 
@@ -50,13 +50,13 @@ describe IEC60751 do
       IEC60751.resistance(t: 1123.15, unit: :kelvin).should be_within(0.0001).of(390.4811)
     end
 
-    it 'raises error when out of bounds' do
-      expect { IEC60751.resistance(t: -201.00) }.to raise_error
-      expect { IEC60751.resistance(t:  851.00) }.to raise_error
+    it 'raises error when out of range' do
+      expect { IEC60751.resistance(t: -201.00) }.to raise_error(RangeError, /t.*out.*range/)
+      expect { IEC60751.resistance(t:  851.00) }.to raise_error(RangeError, /t.*out.*range/)
     end
 
     it 'raises error when no temperature is set' do
-      expect { IEC60751.resistance }.to raise_error
+      expect { IEC60751.resistance }.to raise_error(ArgumentError, /t.*required/)
     end
   end
 end
