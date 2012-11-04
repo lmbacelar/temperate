@@ -14,10 +14,10 @@ describe RTD do
   end
 
   it 'raises exception when no type is set' do
-    expect { RTD.temperature(resistance: 100.0) }.to raise_error
+    expect { RTD.temperature(resistance: 100.0) }.to raise_error(ArgumentError, /type.*required/)
   end
 
   it 'raises exception when unknown type is set' do
-    expect { RTD.temperature(type: :dummy, resistance: 100.0) }.to raise_error
+    expect { RTD.temperature(type: :dummy, resistance: 100.0) }.to raise_error(ArgumentError, /unexpected.*type/)
   end
 end
