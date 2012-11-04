@@ -1,6 +1,6 @@
 class Unit
   def self.convert(args = {})
-    parse! args
+    parse! args, { required: [:t, :from, :to], default: { delta: false } }
     t, from, to, delta = args[:t], args[:from], args[:to], args[:delta]
 
     if from != :celsius
@@ -26,8 +26,8 @@ private
     end
   end
 
-  def self.parse!(args)
-    [:t, :from, :to].each { |arg| raise ArgumentError.new("#{arg} is required") unless args[arg] }
-    args = { delta: false }.merge(args)
+  def self.parse!(args, options={})
+    Array(options[:required]).each { |arg| raise ArgumentError.new("#{arg} is required") unless args[arg] }
+    args = options[:default].merge(args) if options[:default]
   end
 end
