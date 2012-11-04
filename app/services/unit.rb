@@ -1,4 +1,5 @@
 class Unit
+  extend ArgumentParser
   def self.convert(args = {})
     parse! args, { required: [:t, :from, :to], default: { delta: false } }
     t, from, to, delta = args[:t], args[:from], args[:to], args[:delta]
@@ -22,12 +23,8 @@ private
     when :kelvin     then [1    , -273.15]
     when :fahrenheit then [1/1.8, -32/1.8]
     when :rankine    then [1/1.8, -273.15]
-    else raise ArgumentError.new('unexpected unit!')
+    else raise ArgumentError.new('unexpected unit')
     end
   end
-
-  def self.parse!(args, options={})
-    Array(options[:required]).each { |arg| raise ArgumentError.new("#{arg} is required") unless args[arg] }
-    args = options[:default].merge(args) if options[:default]
-  end
 end
+
