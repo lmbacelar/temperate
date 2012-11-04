@@ -27,9 +27,7 @@ private
   end
 
   def self.parse!(args)
-    # check for missing required args
     [:t, :from, :to].each { |arg| raise ArgumentError.new("#{arg} is required") unless args[arg] }
-    # default values
     args = { delta: false }.merge(args)
   end
 end
