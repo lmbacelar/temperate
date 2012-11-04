@@ -1,3 +1,4 @@
+require_relative '../../lib/argument_parser.rb'
 require_relative '../../app/services/unit.rb'
 
 describe Unit do
