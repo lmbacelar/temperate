@@ -27,14 +27,14 @@ describe SPRT do
         SPRT.wr(t90: 273.16, unit: :kelvin).should be_within(0.0000001).of(1.00000000)
       end
 
-      it 'raises error when out of bounds' do
-        expect { SPRT.wr(t90: -259.50) }.to raise_error
-        expect { SPRT.wr(t90:  961.90) }.to raise_error
+      it 'raises error when out of range' do
+        expect { SPRT.wr(t90: -259.50) }.to raise_error(RangeError, /t90.*out.*range/)
+        expect { SPRT.wr(t90:  961.90) }.to raise_error(RangeError, /t90.*out.*range/)
       end
 
       it 'raises error when no t90 is set' do
         expect { SPRT.wr }.to raise_error
-        expect { SPRT.wr(dummy: :dummy) }.to raise_error
+        expect { SPRT.wr(dummy: :dummy) }.to raise_error(ArgumentError, /t90.*(required|missing)/)
       end
     end
 
@@ -49,16 +49,33 @@ describe SPRT do
         SPRT.t90(wr: 1.00000000, unit: :kelvin).should be_within(0.00013).of(273.16)
       end
 
-      it 'raises error when out of bounds' do
-        expect { SPRT.t90(wr: 0.001) }.to raise_error
-        expect { SPRT.t90(wr: 4.290) }.to raise_error
+      it 'raises error when out of range' do
+        expect { SPRT.t90(wr: 0.001) }.to raise_error(RangeError, /t90.*out.*range/)
+        expect { SPRT.t90(wr: 4.290) }.to raise_error(RangeError, /t90.*out.*range/)
       end
 
       it 'raises error when no wr is set' do
         expect { SPRT.t90 }.to raise_error
-        expect { SPRT.t90(dummy: :dummy) }.to raise_error
+        expect { SPRT.t90(dummy: :dummy) }.to raise_error(ArgumentError, /wr.*(missing|required)/)
       end
     end
+  end
+
+  context 'deviation functions' do
+    context 'wdev computation' do
+      it 'raises error when no t90 or its90_range is set' do
+        expect { SPRT.wdev(t90: 0.01)      }.to raise_error(ArgumentError, /its90_range.*(missing|required)/)
+        expect { SPRT.wdev(its90_range: 1) }.to raise_error(ArgumentError, /t90.*(missing|required)/)
+      end
+
+      it 'raises error when invalid ITS-90 range' do
+        expect { SPRT.wdev(t90: 0.01, its90_range: 0)   }.to raise_error(ArgumentError, /unexpected.*range/)
+        expect { SPRT.wdev(t90: 0.01, its90_range: 12)  }.to raise_error(ArgumentError), /unexpected.*range/
+        expect { SPRT.wdev(t90: 0.01, its90_range: 'a') }.to raise_error(ArgumentError), /unexpected.*range/
+      end
+    end
+
+
   end
 end
 

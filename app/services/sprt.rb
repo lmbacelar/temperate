@@ -6,14 +6,35 @@ class SPRT
                   
   def self.wr(params)
     parse params
-    raise 't90 is required!' unless @@t90
+    raise ArgumentError.new('t90 is required!') unless @@t90
     wr_celsius
   end
 
   def self.t90(params)
     parse params
-    raise 'wr is required!' unless @@wr
+    raise ArgumentError.new('wr is required!') unless @@wr
     Unit.convert(t: t90_celsius, from: :celsius, to: @@unit)
+  end
+
+  def self.wdev(params)
+    parse params
+    raise ArgumentError.new('t90 is required!')         unless @@t90
+    raise ArgumentError.new('its90_range is required!') unless @@its90_range
+
+    case @@its90_range
+    when  1 then wdev1
+    when  2 then wdev2
+    when  3 then wdev3
+    when  4 then wdev4
+    when  5 then wdev5
+    when  6 then wdev6
+    when  7 then wdev7
+    when  8 then wdev8
+    when  9 then wdev9
+    when 10 then wdev10
+    when 11 then wdev11
+    else raise ArgumentError.new('unexpected its90 range!')
+    end
   end
 
 private
@@ -23,12 +44,13 @@ private
     @@t90         = params[:t90]
     @@wr          = params[:wr]
     @@unit        = params[:unit] ||  :celsius
+    @@its90_range = params[:its90_range]
 
     @@t90c        = Unit.convert(t: @@t90, from: @@unit, to: :celsius) if @@t90
   end
 
   def self.wr_celsius
-    raise 'out of bounds!' if @@t90c < LLIMIT || @@t90c > ULIMIT
+    raise RangeError.new('t90 is out of range!') if @@t90c < LLIMIT || @@t90c > ULIMIT
     if @@t90c < 0.01
       a = [ -2.13534729, 3.1832472,  -1.80143597,
              0.71727204, 0.50344027, -0.61899395,
@@ -67,7 +89,7 @@ private
               0.049025 ]
       t = d.each_with_index.map{ |d, i| d*((@@wr-2.64)/1.64)**i }.inject(:+)
     end
-    raise 'out of bounds!' if t < LLIMIT || t > ULIMIT
+    raise RangeError.new('t90 is out of range!') if t < LLIMIT || t > ULIMIT
     t
   end
 end
