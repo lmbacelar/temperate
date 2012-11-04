@@ -26,13 +26,13 @@ describe Unit do
 
     context 'error checks' do
       it 'raises error when missing parameters' do
-        expect { Unit.convert }.to raise_error
-        expect { Unit.convert(t:    0.00) }.to raise_error(ArgumentError, /required|missing/)
-        expect { Unit.convert(from: :celsius) }.to raise_error(ArgumentError, /required|missing/)
-        expect { Unit.convert(to:   :celsius) }.to raise_error(ArgumentError, /required|missing/)
-        expect { Unit.convert(t:    0.00,     from: :celsius) }.to raise_error(ArgumentError, /to.*(required|missing)/)
-        expect { Unit.convert(t:    0.00,     to:   :celsius) }.to raise_error(ArgumentError, /from.*(required|missing)/)
-        expect { Unit.convert(from: :celsius, to:   :celsius) }.to raise_error(ArgumentError, /t.*(required|missing)/)
+        expect { Unit.convert                                 }.to raise_error(ArgumentError, /required/)
+        expect { Unit.convert(t:    0.00)                     }.to raise_error(ArgumentError, /required/)
+        expect { Unit.convert(from: :celsius)                 }.to raise_error(ArgumentError, /required/)
+        expect { Unit.convert(to:   :celsius)                 }.to raise_error(ArgumentError, /required/)
+        expect { Unit.convert(t:    0.00,     from: :celsius) }.to raise_error(ArgumentError, /to.*required/)
+        expect { Unit.convert(t:    0.00,     to:   :celsius) }.to raise_error(ArgumentError, /from.*required/)
+        expect { Unit.convert(from: :celsius, to:   :celsius) }.to raise_error(ArgumentError, /t.*(required)/)
       end
 
       it 'raises error when wrong parameters' do
