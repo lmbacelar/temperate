@@ -27,24 +27,24 @@ describe Unit do
     context 'error checks' do
       it 'raises error when missing parameters' do
         expect { Unit.convert }.to raise_error
-        expect { Unit.convert(t:    0.00) }.to raise_error
-        expect { Unit.convert(from: :celsius) }.to raise_error
-        expect { Unit.convert(to:   :celsius) }.to raise_error
-        expect { Unit.convert(t:    0.00,     from: :celsius) }.to raise_error
-        expect { Unit.convert(t:    0.00,     to:   :celsius) }.to raise_error
-        expect { Unit.convert(from: :celsius, to:   :celsius) }.to raise_error
+        expect { Unit.convert(t:    0.00) }.to raise_error(ArgumentError, /required|missing/)
+        expect { Unit.convert(from: :celsius) }.to raise_error(ArgumentError, /required|missing/)
+        expect { Unit.convert(to:   :celsius) }.to raise_error(ArgumentError, /required|missing/)
+        expect { Unit.convert(t:    0.00,     from: :celsius) }.to raise_error(ArgumentError, /to.*(required|missing)/)
+        expect { Unit.convert(t:    0.00,     to:   :celsius) }.to raise_error(ArgumentError, /from.*(required|missing)/)
+        expect { Unit.convert(from: :celsius, to:   :celsius) }.to raise_error(ArgumentError, /t.*(required|missing)/)
       end
 
       it 'raises error when wrong parameters' do
-        expect { Unit.convert(t: 0.00, from: :celsius, to: :dummy1 ) }.to raise_error
-        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :celsius) }.to raise_error
-        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :dummy1 ) }.to raise_error
-        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :dummy2 ) }.to raise_error
+        expect { Unit.convert(t: 0.00, from: :celsius, to: :dummy1 ) }.to raise_error(ArgumentError, /unexpected.*unit/)
+        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :celsius) }.to raise_error(ArgumentError, /unexpected.*unit/)
+        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :dummy1 ) }.to raise_error(ArgumentError, /unexpected.*unit/)
+        expect { Unit.convert(t: 0.00, from: :dummy1,  to: :dummy2 ) }.to raise_error(ArgumentError, /unexpected.*unit/)
       end
 
-      it 'raises error when out of bounds' do
-        expect { Unit.convert(t:   -1.00, from: :kelvin,  to: :kelvin )}.to raise_error
-        expect { Unit.convert(t: -274.00, from: :celsius, to: :rankine)}.to raise_error
+      it 'raises error when t is out of range' do
+        expect { Unit.convert(t:   -1.00, from: :kelvin,  to: :kelvin )}.to raise_error(RangeError, /t.*out.*range/)
+        expect { Unit.convert(t: -274.00, from: :celsius, to: :rankine)}.to raise_error(RangeError, /t.*out.*range/)
       end
     end
   end
