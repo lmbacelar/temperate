@@ -19,7 +19,6 @@ class Unit
 
 private
   def self.to_celsius(from)
-    # returns array of gain, offset
     case from.downcase.to_sym
     when :celsius    then [1    ,  0]
     when :kelvin     then [1    , -273.15]
