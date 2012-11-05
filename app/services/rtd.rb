@@ -1,10 +1,10 @@
-class RTD
-  def self.temperature(params)
-    type = params.delete(:type) { |t| raise ArgumentError.new("#{t} is required") }
-    case type
-    when :iec60751 then IEC60751.temperature(params)
-    when :sprt     then SPRT.temperature(params)
-    else raise ArgumentError.new('unexpected type')
-    end
+class Rtd
+  TYPES = { iec60751: 'Iec60751Rtd',
+            sprt:     'Sprt' }
+
+  def self.temperature(args)
+    type = args.delete(:type) { raise ArgumentError }
+    r    = args.delete(:r)    { raise ArgumentError }
+    eval(TYPES[type]).new(args).temperature(r)
   end
 end

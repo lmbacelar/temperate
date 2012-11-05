@@ -1,7 +1,7 @@
 require_relative '../../app/services/sprt'
-require_relative '../../app/services/unit'
+require_relative '../../app/services/unit_conversion'
 
-describe SPRT do
+describe Sprt do
   context 'reference funtions' do
     examples = [ { point: 'e-H2 Tp', t90: -259.3467, wr: 0.00119007 }, 
                  { point: 'Ne Tp',   t90: -248.5939, wr: 0.00844974 }, 
@@ -17,61 +17,51 @@ describe SPRT do
                  { point: 'Ag Fp',   t90:  961.7800, wr: 4.28642053 } ] 
 
     context 'wr computation' do
+
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          SPRT.wr(t90: ex[:t90]).should be_within(0.0000001).of(ex[:wr])
+          Sprt.wr(ex[:t90]).should be_within(0.0000001).of(ex[:wr])
         end
       end
 
       it 'handles kelvin units' do
-        SPRT.wr(t90: 273.16, unit: :kelvin).should be_within(0.0000001).of(1.00000000)
+        Sprt.wr(273.16, :kelvin).should be_within(0.0000001).of(1.00000000)
       end
 
       it 'raises error when out of range' do
-        expect { SPRT.wr(t90: -259.50) }.to raise_error(RangeError, /t90.*out.*range/)
-        expect { SPRT.wr(t90:  961.90) }.to raise_error(RangeError, /t90.*out.*range/)
-      end
-
-      it 'raises error when no t90 is set' do
-        expect { SPRT.wr }.to raise_error
-        expect { SPRT.wr(dummy: :dummy) }.to raise_error(ArgumentError, /t90.*(required|missing)/)
+        expect { Sprt.wr(-259.50) }.to raise_error(RangeError)
+        expect { Sprt.wr( 961.90) }.to raise_error(RangeError)
       end
     end
 
     context 't90 computation' do
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          SPRT.t90(wr: ex[:wr]).should be_within(0.00013).of(ex[:t90])
+          Sprt.t90(ex[:wr]).should be_within(0.00013).of(ex[:t90])
         end
       end
 
       it 'handles kelvin units' do
-        SPRT.t90(wr: 1.00000000, unit: :kelvin).should be_within(0.00013).of(273.16)
+        Sprt.t90(1.00000000, :kelvin).should be_within(0.00013).of(273.16)
       end
 
       it 'raises error when out of range' do
-        expect { SPRT.t90(wr: 0.001) }.to raise_error(RangeError, /t90.*out.*range/)
-        expect { SPRT.t90(wr: 4.290) }.to raise_error(RangeError, /t90.*out.*range/)
-      end
-
-      it 'raises error when no wr is set' do
-        expect { SPRT.t90 }.to raise_error
-        expect { SPRT.t90(dummy: :dummy) }.to raise_error(ArgumentError, /wr.*(missing|required)/)
+        expect { Sprt.t90(0.001) }.to raise_error(RangeError)
+        expect { Sprt.t90(4.290) }.to raise_error(RangeError)
       end
     end
   end
 
   context 'deviation functions' do
     context 'wdev computation' do
-      it 'raises error when no t90 or its90_range is set' do
-        expect { SPRT.wdev(t90: 0.01)      }.to raise_error(ArgumentError, /its90_range.*(missing|required)/)
-        expect { SPRT.wdev(its90_range: 1) }.to raise_error(ArgumentError, /t90.*(missing|required)/)
+      it 'computes no deviation when all zero constants' do
+        Sprt.new.wdev(0.0, 1).should == 0.0
       end
 
       it 'raises error when invalid ITS-90 range' do
-        expect { SPRT.wdev(t90: 0.01, its90_range: 0)   }.to raise_error(ArgumentError, /unexpected.*range/)
-        expect { SPRT.wdev(t90: 0.01, its90_range: 12)  }.to raise_error(ArgumentError), /unexpected.*range/
-        expect { SPRT.wdev(t90: 0.01, its90_range: 'a') }.to raise_error(ArgumentError), /unexpected.*range/
+        expect { Sprt.new.wdev(0.01, 0)   }.to raise_error(ArgumentError)
+        expect { Sprt.new.wdev(0.01, 12)  }.to raise_error(ArgumentError)
+        expect { Sprt.new.wdev(0.01, 'a') }.to raise_error(ArgumentError)
       end
     end
 
