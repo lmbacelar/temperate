@@ -15,7 +15,7 @@ class Sprt < KeyStruct[rtpw: 25.0,
 
   def wdev(t90, its90_range, unit = :celsius)
     raise ArgumentError unless (1..11).include? its90_range
-    self.send("wdev#{its90_range}_celsius", UnitConversion.new(:temperature).convert(t90, unit, :celsius))
+    wdev_celsius(UnitConversion.new(:temperature).convert(t90, unit, :celsius), its90_range)
   end
 
 private
@@ -47,15 +47,9 @@ private
             0.026025526 ]
       t90_celsius = b.each_with_index.map{ |b, i| b*(((wr)**(1.0/6)-0.65)/0.35)**i }.inject(:+) * 273.16 - 273.15
     else
-      d = [ 439.932854,
-            472.41802,
-             37.684494,
-              7.472018,
-              2.920828,
-              0.005184,
-             -0.963864,
-             -0.188732,
-              0.191203,
+      d = [ 439.932854, 472.41802, 37.684494,
+              7.472018,   2.920828, 0.005184,
+             -0.963864,  -0.188732, 0.191203,
               0.049025 ]
       t90_celsius = d.each_with_index.map{ |d, i| d*((wr-2.64)/1.64)**i }.inject(:+)
     end
@@ -63,90 +57,33 @@ private
     t90_celsius
   end
 
-  def wdev1_celsius(t90_celsius)
-    raise RangeError unless (-259.4467..0.01).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a  * ( wr_t90 - 1 ) +
-    b  * ( wr_t90 - 1 ) ** 2 +
-    c1 * Math.log( wr_t90 ) ** 3 +
-    c2 * Math.log( wr_t90 ) ** 4 +
-    c3 * Math.log( wr_t90 ) ** 5 +
-    c4 * Math.log( wr_t90 ) ** 6 +
-    c5 * Math.log( wr_t90 ) ** 7
-  end
+  def wdev_celsius(t90_celsius, its90_range)
+    eqs = [ { valid: (-259.4467..0.01),    k: (1..5), n: 2 }, 
+            { valid: (-248.5939..0.01),    k: (1..3), n: 0 },
+            { valid: (-218.7916..0.01),    k: (1..1), n: 1 },
+            { valid: (-189.3442..0.01),    k: [] },
+            { valid: (0.0..961.78),        k: %w(a b c d) }, 
+            { valid: (0.0..660.323),       k: %w(a b c)   }, 
+            { valid: (0.0..419.527),       k: %w(a b)     }, 
+            { valid: (0.0..231.928),       k: %w(a b)     }, 
+            { valid: (0.0..156.5985),      k: %w(a)       }, 
+            { valid: (0.0..29.7646),       k: %w(a)       }, 
+            { valid: (-38.8344..29.7646),  k: %w(a b)     } ] 
+    eq = eqs[its90_range - 1]
+    
+    raise RangeError unless eq[:valid].include? t90_celsius
 
-  def wdev2_celsius(t90_celsius)
-    raise RangeError unless (-248.5939..0.01).include? t90_celsius
     wr_t90 = self.class.wr_celsius(t90_celsius)
-    a  * ( wr_t90 - 1 ) +
-    b  * ( wr_t90 - 1 ) ** 2 +
-    c1 * Math.log( wr_t90 ) ** 1 +
-    c2 * Math.log( wr_t90 ) ** 2 +
-    c3 * Math.log( wr_t90 ) ** 3
-  end
-
-  def wdev3_celsius(t90_celsius)
-    raise RangeError unless (-218.7916..0.01).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a  * ( wr_t90 - 1 ) +
-    b  * ( wr_t90 - 1 ) ** 2 +
-    c1 * Math.log( wr_t90 ) ** 2
-  end
-
-  def wdev4_celsius(t90_celsius)
-    raise RangeError unless (-189.3442..0.01).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a  * ( wr_t90 - 1 ) +
-    b  * ( wr_t90 - 1 ) * Math.log(wr_t90)
-  end
-
-  def wdev5_celsius(t90_celsius)
-    raise RangeError unless (0.0..961.78).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 ) +
-    b * ( wr_t90 - 1 ) ** 2 +
-    c * ( wr_t90 - 1 ) ** 3 +
-    d * (wr_t90 - w660) ** 2
-  end
-
-  def wdev6_celsius(t90_celsius)
-    raise RangeError unless (0.0..660.323).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 ) +
-    b * ( wr_t90 - 1 ) ** 2 +
-    c * ( wr_t90 - 1 ) ** 3
-  end
-
-  def wdev7_celsius(t90_celsius)
-    raise RangeError unless (0.0..419.527).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 ) +
-    b * ( wr_t90 - 1 ) ** 2
-  end
-
-  def wdev8_celsius(t90_celsius)
-    raise RangeError unless (0.0..231.928).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 ) +
-    b * ( wr_t90 - 1 ) ** 2
-  end
-
-  def wdev9_celsius(t90_celsius)
-    raise RangeError unless (0.0..156.5985).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 )
-  end
-
-  def wdev10_celsius(t90_celsius)
-    raise RangeError unless (0.0..29.7646).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 )
-  end
-
-  def wdev11_celsius(t90_celsius)
-    raise RangeError unless (-38.8344..29.7646).include? t90_celsius
-    wr_t90 = self.class.wr_celsius(t90_celsius)
-    a * ( wr_t90 - 1 ) +
-    b * ( wr_t90 - 1 ) ** 2
+    case its90_range
+    when 1..4
+      wdev  = a  * ( wr_t90 - 1 )
+      wdev += its90_range == 4 ? wdev += b*(wr_t90 - 1)*Math.log(wr_t90) : wdev += b*(wr_t90 - 1)**2
+      eq[:k].each { |i| wdev += eval("c#{i}")*Math.log( wr_t90 )**(i + eq[:n]) }
+    when 5..11
+      wdev   = d*(wr_t90 - w660)**2 if eq[:k].delete('d')
+      wdev ||= 0
+      wdev  += eq[:k].each_with_index.map{ |k, i| eval(k)*(wr_t90 - 1)**i }.inject(:+)
+    end
+    wdev
   end
 end

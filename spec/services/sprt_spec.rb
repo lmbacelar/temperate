@@ -54,14 +54,18 @@ describe Sprt do
 
   context 'deviation functions' do
     context 'wdev computation' do
-      it 'computes no deviation when all zero constants' do
-        Sprt.new.wdev(0.0, 1).should == 0.0
+
+
+      (1..11).each do |range|
+        it "computes no deviation on range #{range} when all zero constants" do
+          Sprt.new.wdev(0.0, range).should == 0.0
+        end
       end
 
       it 'raises error when invalid ITS-90 range' do
-        expect { Sprt.new.wdev(0.01, 0)   }.to raise_error(ArgumentError)
-        expect { Sprt.new.wdev(0.01, 12)  }.to raise_error(ArgumentError)
-        expect { Sprt.new.wdev(0.01, 'a') }.to raise_error(ArgumentError)
+        [-1, 0, 12, 'a'].each do |range|
+          expect { Sprt.new.wdev(0.01, range)   }.to raise_error(ArgumentError)
+        end
       end
     end
 
