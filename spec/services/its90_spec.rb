@@ -31,13 +31,13 @@ describe Its90 do
     context 't90 computation' do
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          Its90.t90(ex[:wr]).should be_within(0.00013).of(ex[:t90])
+          Its90.t90r(ex[:wr]).should be_within(0.00013).of(ex[:t90])
         end
       end
 
       it 'raises error when out of range' do
-        expect { Its90.t90(0.001) }.to raise_error(RangeError)
-        expect { Its90.t90(4.290) }.to raise_error(RangeError)
+        expect { Its90.t90r(0.001) }.to raise_error(RangeError)
+        expect { Its90.t90r(4.290) }.to raise_error(RangeError)
       end
     end
   end
@@ -71,12 +71,23 @@ describe Its90 do
                    {t90: 419.527, wdev: -0.000271813},
                    {t90: 660.323, wdev: -0.000413567} ]
       examples.each do |ex|
-        it "complies with NIST SP250-81 sample on range 7, #{ex[:t90]} Celsius" do
+        it "complies with NIST SP250-81 sample on range 6, #{ex[:t90]} Celsius" do
           sprt = stub(range: 6, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
           Its90.wdev(sprt, ex[:t90]).should be_within(0.00000001).of(ex[:wdev])
         end
       end
     end
   end
-end
 
+  context 'temperature computation' do
+    examples = [ { r: 25.7225741428, t:   0.000 },
+                 { r: 35.8254370135, t: 100.000 },
+                 { r: 86.8058318732, t: 660.000 } ]
+    examples.each do |ex|
+      it "complies with NIST SP250-81 sample on range 6, 0.000 Celsius" do
+        sprt = stub(range: 6, rtpw: 25.72336, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
+        Its90.t90(sprt, ex[:r]).should be_within(0.001).of(ex[:t])
+      end
+    end
+  end
+end

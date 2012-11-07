@@ -48,7 +48,7 @@ class Its90
     end
   end
 
-  def self.t90(wr)
+  def self.t90r(wr)
     raise RangeError unless VALID_WR_RANGE.include? wr
     if wr < 1.0
       B.each_with_index.map{ |b, i| b*(((wr)**(1.0/6)-0.65)/0.35)**i }.inject(:+) * 273.16 - 273.15
@@ -72,5 +72,11 @@ class Its90
       wdev ||= 0
       wdev  += equation[:k].each_with_index.map{ |k, i| eval("sprt.#{k}") * (wr_t90 - 1)**(i+1) }.inject(:+)
     end
+  end
+
+  def self.t90(sprt, r)
+    w = r / sprt.rtpw
+    t = t90r(w)
+    t90r(w - wdev(sprt, t))
   end
 end
