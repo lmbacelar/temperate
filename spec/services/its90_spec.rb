@@ -1,7 +1,6 @@
-require_relative '../../app/services/sprt'
-require_relative '../../app/services/unit_conversion'
+require_relative '../../app/services/its90'
 
-describe Sprt do
+describe Its90 do
   context 'reference funtions' do
     examples = [ { point: 'e-H2 Tp', t90: -259.3467, wr: 0.00119007 }, 
                  { point: 'Ne Tp',   t90: -248.5939, wr: 0.00844974 }, 
@@ -20,56 +19,47 @@ describe Sprt do
 
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          Sprt.wr(ex[:t90]).should be_within(0.0000001).of(ex[:wr])
+          Its90.wr(ex[:t90]).should be_within(0.0000001).of(ex[:wr])
         end
       end
 
-      it 'handles kelvin units' do
-        Sprt.wr(273.16, :kelvin).should be_within(0.0000001).of(1.00000000)
-      end
-
       it 'raises error when out of range' do
-        expect { Sprt.wr(-259.50) }.to raise_error(RangeError)
-        expect { Sprt.wr( 961.90) }.to raise_error(RangeError)
+        expect { Its90.wr(-259.50) }.to raise_error(RangeError)
+        expect { Its90.wr( 961.90) }.to raise_error(RangeError)
       end
     end
 
     context 't90 computation' do
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          Sprt.t90(ex[:wr]).should be_within(0.00013).of(ex[:t90])
+          Its90.t90(ex[:wr]).should be_within(0.00013).of(ex[:t90])
         end
-      end
-
-      it 'handles kelvin units' do
-        Sprt.t90(1.00000000, :kelvin).should be_within(0.00013).of(273.16)
       end
 
       it 'raises error when out of range' do
-        expect { Sprt.t90(0.001) }.to raise_error(RangeError)
-        expect { Sprt.t90(4.290) }.to raise_error(RangeError)
+        expect { Its90.t90(0.001) }.to raise_error(RangeError)
+        expect { Its90.t90(4.290) }.to raise_error(RangeError)
       end
     end
   end
 
-  context 'deviation functions' do
-    context 'wdev computation' do
-
-
-      (1..11).each do |range|
-        it "computes no deviation on range #{range} when all zero constants" do
-          Sprt.new.wdev(0.0, range).should == 0.0
-        end
-      end
-
-      it 'raises error when invalid ITS-90 range' do
-        [-1, 0, 12, 'a'].each do |range|
-          expect { Sprt.new.wdev(0.01, range)   }.to raise_error(ArgumentError)
-        end
-      end
-    end
-
-
-  end
+#  context 'deviation functions' do
+#    context 'wdev computation' do
+#
+#      (1..11).each do |range|
+#        it "computes no deviation on range #{range} when all zero constants" do
+#          Its90.wdev(0.0, range).should == 0.0
+#        end
+#      end
+#
+#      it 'raises error when invalid ITS-90 range' do
+#        [-1, 0, 12, 'a'].each do |range|
+#          expect { Its90.wdev(0.01, range)   }.to raise_error(ArgumentError)
+#        end
+#      end
+#    end
+#
+#
+#  end
 end
 
