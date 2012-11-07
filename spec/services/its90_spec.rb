@@ -80,13 +80,13 @@ describe Its90 do
   end
 
   context 'temperature computation' do
-    examples = [ { r: 25.7225741428, t:   0.000 },
-                 { r: 35.8254370135, t: 100.000 },
-                 { r: 86.8058318732, t: 660.000 } ]
+    examples = [ { r: 25.319871, t:   0.010},
+                 { r: 47.922451, t: 231.928},
+                 { r: 65.039218, t: 419.527} ]
     examples.each do |ex|
-      it "complies with NIST SP250-81 sample on range 6, #{ex[:t]} Celsius" do
-        sprt = stub(range: 6, rtpw: 25.72336, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
-        Its90.t90(sprt, ex[:r]).should be_within(0.001).of(ex[:t])
+      it "complies with IPQ cert. 501.20/1241312 range 7, #{ex[:t]} Celsius" do
+        sprt = stub(range: 7, rtpw: 25.319871, a: -1.2134e-04, b: -9.9190e-06)
+        Its90.t90(sprt, ex[:r]).should be_within(0.0001).of(ex[:t])
       end
     end
   end
