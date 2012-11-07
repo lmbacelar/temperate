@@ -16,10 +16,9 @@ describe Its90 do
                  { point: 'Ag Fp',   t90:  961.7800, wr: 4.28642053 } ] 
 
     context 'wr computation' do
-
       examples.each do |ex|
         it "handles #{ex[:point]} fixed point" do
-          Its90.wr(ex[:t90]).should be_within(0.0000001).of(ex[:wr])
+          Its90.wr(ex[:t90]).should be_within(0.00000001).of(ex[:wr])
         end
       end
 
@@ -43,23 +42,41 @@ describe Its90 do
     end
   end
 
-#  context 'deviation functions' do
-#    context 'wdev computation' do
-#
-#      (1..11).each do |range|
-#        it "computes no deviation on range #{range} when all zero constants" do
-#          Its90.wdev(0.0, range).should == 0.0
-#        end
-#      end
-#
-#      it 'raises error when invalid ITS-90 range' do
-#        [-1, 0, 12, 'a'].each do |range|
-#          expect { Its90.wdev(0.01, range)   }.to raise_error(ArgumentError)
-#        end
-#      end
-#    end
-#
-#
-#  end
+  context 'deviation functions' do
+    context 'wdev computation' do
+      (1..11).each do |range|
+        it "returns 0.0 on range #{range} for ideal SPRT" do
+          sprt = stub(range: range, 
+                      rtpw: 25.0, 
+                      a: 0.0, b: 0.0, c: 0.0, d: 0.0, w660: 0.0, 
+                      c1: 0.0, c2: 0.0, c3: 0.0, c4: 0.0, c5: 0.0)
+          Its90.wdev(sprt, 0.0).should == 0.0
+        end
+      end
+
+      examples = [ {t90: -189.3442, wdev: 0.000111482},
+                   {t90: -100.0000, wdev: 0.000053258},
+                   {t90:  -38.8344, wdev: 0.000019889},
+                   {t90:    0.0000, wdev: 0.000000005} ]
+      examples.each do |ex|
+        it "complies with NIST SP250-81 sample on range 4, #{ex[:t90]} Celsius" do
+          sprt = stub(range: 4, a: -1.2579994e-04, b: 1.0678395e-05)
+          Its90.wdev(sprt, ex[:t90]).should be_within(0.00000001).of(ex[:wdev])
+        end
+      end
+      
+      examples = [ {t90:   0.000, wdev:  0.000000007},
+                   {t90: 100.000, wdev: -0.000065852},
+                   {t90: 231.928, wdev: -0.000152378},
+                   {t90: 419.527, wdev: -0.000271813},
+                   {t90: 660.323, wdev: -0.000413567} ]
+      examples.each do |ex|
+        it "complies with NIST SP250-81 sample on range 7, #{ex[:t90]} Celsius" do
+          sprt = stub(range: 6, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
+          Its90.wdev(sprt, ex[:t90]).should be_within(0.00000001).of(ex[:wdev])
+        end
+      end
+    end
+  end
 end
 
