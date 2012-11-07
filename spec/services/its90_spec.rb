@@ -84,7 +84,7 @@ describe Its90 do
                  { r: 35.8254370135, t: 100.000 },
                  { r: 86.8058318732, t: 660.000 } ]
     examples.each do |ex|
-      it "complies with NIST SP250-81 sample on range 6, 0.000 Celsius" do
+      it "complies with NIST SP250-81 sample on range 6, #{ex[:t]} Celsius" do
         sprt = stub(range: 6, rtpw: 25.72336, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
         Its90.t90(sprt, ex[:r]).should be_within(0.001).of(ex[:t])
       end

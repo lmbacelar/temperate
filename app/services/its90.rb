@@ -76,7 +76,6 @@ class Its90
 
   def self.t90(sprt, r)
     w = r / sprt.rtpw
-    t = t90r(w)
-    t90r(w - wdev(sprt, t))
+    t90r(w - wdev(sprt, t90r(w)))
   end
 end
