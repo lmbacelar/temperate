@@ -1,7 +1,11 @@
-When /^I read (.+) ohms on a rtd of type (.*)$/ do |r, t|
-  @temperature = Rtd.temperature(type: t.downcase.to_sym, r: r.to_f)
+When /^I read (.+) ohms on a rtd of type SPRT$/ do |r|
+  @temperature = Its90.t90(Sprt.new, r.to_f)
+end
+
+When /^I read (.+) ohms on a rtd of type IEC60751$/ do |r|
+  @temperature = Iec60751.temperature(Rtd.new, r.to_f)
 end
 
 Then /^I should get a (.+) degrees Celsius temperature$/ do |t|
-  @temperature.should == t.to_f
+  @temperature.should be_within(0.0001).of(t.to_f)
 end
