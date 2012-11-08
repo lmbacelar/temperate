@@ -11,7 +11,19 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121107011435) do
+ActiveRecord::Schema.define(:version => 20121108000116) do
+
+  create_table "rtds", :force => true do |t|
+    t.string   "name",                                       :null => false
+    t.decimal  "r0",         :default => 100.0,              :null => false
+    t.decimal  "a",          :default => 0.0039083,          :null => false
+    t.decimal  "b",          :default => -0.0000005775,      :null => false
+    t.decimal  "c",          :default => -0.000000000004183, :null => false
+    t.datetime "created_at",                                 :null => false
+    t.datetime "updated_at",                                 :null => false
+  end
+
+  add_index "rtds", ["name"], :name => "index_rtds_on_name", :unique => true
 
   create_table "sprts", :force => true do |t|
     t.string   "name",                         :null => false
