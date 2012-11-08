@@ -9,7 +9,7 @@ describe Iec60751 do
                { r: 390.4811, t:  850.0000 } ]
   context 'temperature computation' do
     examples.each do |ex|
-      it "computes #{ex[:t]} Celius when resistance equals #{ex[:r]} Ohm" do
+      it "yields #{ex[:t]} Celius when resistance equals #{ex[:r]} Ohm" do
         Iec60751.temperature(rtd, ex[:r]).should be_within(0.0001).of(ex[:t])
       end
     end
@@ -22,7 +22,7 @@ describe Iec60751 do
 
   context 'resistance computation' do
     examples.each do |ex|
-      it "computes #{ex[:r]} Ohm when temperature equals #{ex[:t]} Celsius" do
+      it "yields #{ex[:r]} Ohm when temperature equals #{ex[:t]} Celsius" do
         Iec60751.resistance(rtd, ex[:t]).should be_within(0.0001).of(ex[:r])
       end
     end

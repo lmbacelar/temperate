@@ -17,7 +17,7 @@ describe Its90 do
 
     context 'wr computation' do
       examples.each do |ex|
-        it "handles #{ex[:point]} fixed point" do
+        it "complies on #{ex[:point]} fixed point" do
           Its90.wr(ex[:t90]).should be_within(0.00000001).of(ex[:wr])
         end
       end
@@ -28,9 +28,9 @@ describe Its90 do
       end
     end
 
-    context 't90 computation' do
+    context 't90r computation' do
       examples.each do |ex|
-        it "handles #{ex[:point]} fixed point" do
+        it "complies on #{ex[:point]} fixed point" do
           Its90.t90r(ex[:wr]).should be_within(0.00013).of(ex[:t90])
         end
       end
@@ -79,7 +79,7 @@ describe Its90 do
     end
   end
 
-  context 'temperature computation' do
+  context 'temperature function' do
     examples = [ { r: 25.319871, t:   0.010},
                  { r: 47.922451, t: 231.928},
                  { r: 65.039218, t: 419.527} ]
