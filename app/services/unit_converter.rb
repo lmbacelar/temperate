@@ -1,8 +1,8 @@
-class UnitConversion < Struct.new(:quantity)
+class UnitConverter
   QUANTITIES = { temperature: :conv_temperature }
 
-  def convert(value, from, to, delta = false)
-    self.send(QUANTITIES.fetch(quantity), value, from, to, delta)
+  def self.convert(quantity, value, from, to, delta = false)
+    send(QUANTITIES.fetch(quantity), value, from, to, delta)
   end
 
 private
@@ -11,7 +11,7 @@ private
                  fahrenheit: [1/1.8, -32/1.8], 
                  rankine:    [1/1.8, -273.15] }
 
-  def conv_temperature(t, from, to, delta)
+  def self.conv_temperature(t, from, to, delta)
     if from != :celsius
       factor = TO_CELSIUS.fetch(from)
       t = t * factor[0] + (delta ? 0 : factor[1])
