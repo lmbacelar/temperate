@@ -1,0 +1,25 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: temperate_development
+  pool: 5
+  username: # fill in
+  password: # fill in
+test: &test
+  adapter: postgresql
+  encoding: unicode
+  database: temperate_test
+  pool: 5
+  username: # fill in
+  password: # fill in
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: temperate_production
+  pool: 5
+  username: # fill in
+  password: # fill in
+
+cucumber:
+  <<: *test
