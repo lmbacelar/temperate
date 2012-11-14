@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121108000116) do
+ActiveRecord::Schema.define(:version => 20121114202125) do
 
   create_table "rtds", :force => true do |t|
     t.string   "name",                                       :null => false
@@ -44,5 +44,18 @@ ActiveRecord::Schema.define(:version => 20121108000116) do
   end
 
   add_index "sprts", ["name"], :name => "index_sprts_on_name", :unique => true
+
+  create_table "thermocouples", :force => true do |t|
+    t.string   "name",                        :null => false
+    t.string   "kind",       :default => "k", :null => false
+    t.decimal  "a3",         :default => 0.0, :null => false
+    t.decimal  "a2",         :default => 0.0, :null => false
+    t.decimal  "a1",         :default => 0.0, :null => false
+    t.decimal  "a0",         :default => 0.0, :null => false
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+  end
+
+  add_index "thermocouples", ["name"], :name => "index_thermocouples_on_name", :unique => true
 
 end
