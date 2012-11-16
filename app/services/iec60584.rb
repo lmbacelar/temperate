@@ -128,30 +128,22 @@ class Iec60584
       t_calc -= (e_calc - e) / slope
     end
     raise StopIteration
-
-
-#    '  Check slope at temperature (based on neighbourhood of de ±0,1%)
-#    S = (IIf(V = 0, 0.1, V) - Vaux) / (TemperaturaTermopar - Taux)
-#    ' Following iterations
-#    For i = 1 To MAX_ITER
-#      Vref = FemTermoparOpt(TemperaturaTermopar, TCType, False)
-#      If Abs(Vref - V) < S * err Then Exit For
-#      TemperaturaTermopar = TemperaturaTermopar - (Vref - V) / S
-#    Next i
-#    ' Check non-convergence
-#     If i = MAX_ITER + 1 Then TemperaturaTermopar = 1E+32'''
-
-
   end
 
+private
   def self.approximate_temperature(tc, e)
-    TEMPERATURE_EQUATIONS[tc.kind].each do |equation|
-      if equation[:range].include? e
-        result  = equation[:d].each_with_index.map{ |d,i| d*e**i }.inject(:+)
-        #result += equation[:a][0] * Math.exp(equation[:a][1] * (t - equation[:a][2])**2) if equation[:a]
-        return result
-      end
+    equations = TEMPERATURE_EQUATIONS[tc.kind] 
+    equations.each do |equation|
+      range = open_range(equations, equation)
+      return equation[:d].each_with_index.map{ |d,i| d*e**i }.inject(:+) if range.include? e
     end
     raise RangeError
+  end
+
+  def self.open_range(equations, equation)
+    range = equation[:range]
+    range = -1.0/0..range.end  if range == equations.first[:range]
+    range = range.begin..1.0/0 if range == equations.last[:range]
+    return range
   end
 end
