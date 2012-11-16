@@ -2,11 +2,17 @@ require_relative '../../app/services/iec60584'
 
 describe Iec60584 do
   examples = { b: [ { e:  0.000, t:     0.0 },
-                    { e:  0.033, t:   100.0 },
+                    { e:  0.291, t:   250.0 },
                     { e:  1.975, t:   630.0 },
                     { e:  1.981, t:   631.0 },
                     { e:  5.780, t:  1100.0 },
                     { e: 13.820, t:  1820.0 } ], 
+               c: [ { e:  0.000, t:     0.0 },
+                    { e:  1.451, t:   100.0 },
+                    { e: 11.778, t:   660.0 },
+                    { e: 20.066, t:  1100.0 },
+                    { e: 29.402, t:  1680.0 },
+                    { e: 37.107, t:  2320.0 } ], 
                e: [ { e: -9.835, t:  -270.0 },
                     { e: -5.237, t:  -100.0 },
                     { e:  0.000, t:     0.0 },
@@ -51,20 +57,25 @@ describe Iec60584 do
                     { e: 20.872, t:   400.0 } ]
              }
   context 'temperature computation' do
-#     examples.each do |ex|
-#       it "yields #{ex[:t]} Celius when resistance equals #{ex[:r]} Ohm" do
-#         Iec60584.temperature(tc, ex[:r]).should be_within(0.0001).of(ex[:t])
-#       end
-#     end
-# 
-#     it 'raises error when out of range' do
-#       expect { Iec60584.temperature(tc,  18.00) }.to raise_error(RangeError)
-#       expect { Iec60584.temperature(tc, 391.00) }.to raise_error(RangeError)
-#     end
+    [:b].each do |kind|
+      context "on a type #{kind} thermocouple" do
+        let(:tc) { stub(kind: kind, a3: 0.0, a2: 0.0, a1: 0.0, a0: 0.0) }
+        examples[kind].each do |ex|
+          it "should be reciprocal of emf for #{ex[:t]} Celsius" do
+            Iec60584.temperature(tc, Iec60584.emf(tc, ex[:t])).should be_within(0.001).of(ex[:t])
+          end
+        end
+
+        #it 'raises error when out of range' do
+        #  expect { Iec60584.temperature(tc,  18.00) }.to raise_error(RangeError)
+        #  expect { Iec60584.temperature(tc, 391.00) }.to raise_error(RangeError)
+        #end
+      end
+    end
   end
 
   context 'emf computation' do
-    [:b, :e, :j, :k, :n, :r, :s, :t].each do |kind|
+    [:b, :c, :e, :j, :k, :n, :r, :s, :t].each do |kind|
       context "on a type #{kind} thermocouple" do
         let(:tc) { stub(kind: kind, a3: 0.0, a2: 0.0, a1: 0.0, a0: 0.0) }
         examples[kind].each do |ex|
