@@ -88,7 +88,7 @@ class Iec60584
                        0.206182434040e-06, -0.218822568460e-08, 0.109968809280e-10,
                       -0.308157587720e-13, 0.454791352900e-16, -0.275129016730e-19 ] } ]
     }
-  TEMPERATURE_EQUATIONS  = 
+  T90_EQUATIONS  = 
     { 
       b: [ { range: 0.290..2.431,
                  d: [  9.8423321e+01,  6.9971500e+02, -8.4765304e+02,  
@@ -204,29 +204,37 @@ class Iec60584
     raise RangeError
   end
 
-  def self.temperature(tc, e, max_error = 0.001)
+  def self.t90(tc, e, max_error = 0.001)
+    t  = t90r(tc, e, max_error)
+    t += correction(tc, t)
+    T90_EQUATIONS[tc.kind].each do |equation|
+      return t if equation[:range].include?(emf(tc, t, true))
+    end
+    raise RangeError
+  end
+
+  def self.t90r(tc, e, max_error = 0.001)
     return 0.0 if e == 0.0
-    t_calc = approximate_temperature(tc, e)
+    t_calc = approximate_t90r(tc, e)
     e_calc = e
     MAX_ITERATIONS.times do
       e_calc = emf(tc, t_calc, true)
       e_aux = 1.001 * e_calc
-      t_aux  = approximate_temperature(tc, e_aux)
+      t_aux  = approximate_t90r(tc, e_aux)
       slope  = (e_calc - e_aux) / (t_calc - t_aux)
-      if (e_calc - e).abs < slope * max_error
-        TEMPERATURE_EQUATIONS[tc.kind].each do |equation|
-          return t_calc if equation[:range].include?(e_calc)
-        end
-        raise RangeError
-      end
+      return t_calc if (e_calc - e).abs < slope * max_error
       t_calc -= (e_calc - e) / slope
     end
     raise StopIteration
   end
 
+  def self.correction(tc, t)
+    tc.a3*t**3 + tc.a2*t**2 + tc.a1*t + tc.a0
+  end
+
 private
-  def self.approximate_temperature(tc, e)
-    equations = TEMPERATURE_EQUATIONS[tc.kind] 
+  def self.approximate_t90r(tc, e)
+    equations = T90_EQUATIONS[tc.kind] 
     equations.each do |equation|
       range = open_range(equations, equation)
       return equation[:d].each_with_index.map{ |d,i| d*e**i }.inject(:+) if range.include? e
