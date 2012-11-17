@@ -1,35 +1,33 @@
 require_relative '../../app/services/iec60751'
+require 'json'
+
+examples = JSON.parse(File.read('spec/assets/services/iec60751/examples.json'), symbolize_names: true)
 
 describe Iec60751 do
   let(:rtd) { stub(r0: 100.0, a: 3.9083e-03, b: -5.775e-07, c: -4.1830e-12) }
-  examples = [ { r:  18.5201, t: -200.0000 }, 
-               { r:  60.2558, t: -100.0000 }, 
-               { r: 100.0000, t:    0.0000 }, 
-               { r: 247.0920, t:  400.0000 }, 
-               { r: 390.4811, t:  850.0000 } ]
-  context 'temperature computation' do
+  context 't90 computation' do
     examples.each do |ex|
-      it "yields #{ex[:t]} Celius when resistance equals #{ex[:r]} Ohm" do
-        Iec60751.temperature(rtd, ex[:r]).should be_within(0.0001).of(ex[:t])
+      it "yields #{ex[:t90]} Celius when resistance equals #{ex[:res]} Ohm" do
+        Iec60751.t90(rtd, ex[:res]).should be_within(0.0001).of(ex[:t90])
       end
     end
 
     it 'raises error when out of range' do
-      expect { Iec60751.temperature(rtd,  18.00) }.to raise_error(RangeError)
-      expect { Iec60751.temperature(rtd, 391.00) }.to raise_error(RangeError)
+      expect { Iec60751.t90(rtd,  18.00) }.to raise_error(RangeError)
+      expect { Iec60751.t90(rtd, 391.00) }.to raise_error(RangeError)
     end
   end
 
   context 'resistance computation' do
     examples.each do |ex|
-      it "yields #{ex[:r]} Ohm when temperature equals #{ex[:t]} Celsius" do
-        Iec60751.resistance(rtd, ex[:t]).should be_within(0.0001).of(ex[:r])
+      it "yields #{ex[:res]} Ohm when t90 equals #{ex[:t90]} Celsius" do
+        Iec60751.res(rtd, ex[:t90]).should be_within(0.0001).of(ex[:res])
       end
     end
 
     it 'raises error when out of range' do
-      expect { Iec60751.resistance(rtd, -201.00) }.to raise_error(RangeError)
-      expect { Iec60751.resistance(rtd,  851.00) }.to raise_error(RangeError)
+      expect { Iec60751.res(rtd, -201.00) }.to raise_error(RangeError)
+      expect { Iec60751.res(rtd,  851.00) }.to raise_error(RangeError)
     end
   end
 end
