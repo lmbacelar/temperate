@@ -1,22 +1,15 @@
 require_relative '../../app/services/its90'
+require 'json'
+
+fp_examples  = JSON.parse(File.read('spec/assets/services/its90/fp_examples.json') , symbolize_names: true)
+r4_examples  = JSON.parse(File.read('spec/assets/services/its90/r4_examples.json') , symbolize_names: true)
+r6_examples  = JSON.parse(File.read('spec/assets/services/its90/r6_examples.json') , symbolize_names: true)
+t90_examples = JSON.parse(File.read('spec/assets/services/its90/t90_examples.json'), symbolize_names: true)
 
 describe Its90 do
   context 'reference funtions' do
-    examples = [ { point: 'e-H2 Tp', t90: -259.3467, wr: 0.00119007 }, 
-                 { point: 'Ne Tp',   t90: -248.5939, wr: 0.00844974 }, 
-                 { point: 'O2 Tp',   t90: -218.7916, wr: 0.09171804 }, 
-                 { point: 'Ar Tp',   t90: -189.3442, wr: 0.21585975 }, 
-                 { point: 'Hg Tp',   t90:  -38.8344, wr: 0.84414211 }, 
-                 { point: 'H2O Tp',  t90:    0.01,   wr: 1.00000000 }, 
-                 { point: 'Ga Mp',   t90:   29.7646, wr: 1.11813889 }, 
-                 { point: 'In Fp',   t90:  156.5985, wr: 1.60980185 }, 
-                 { point: 'Sn Fp',   t90:  231.9280, wr: 1.89279768 }, 
-                 { point: 'Zn Fp',   t90:  419.5270, wr: 2.56891730 }, 
-                 { point: 'Al Fp',   t90:  660.3230, wr: 3.37600860 }, 
-                 { point: 'Ag Fp',   t90:  961.7800, wr: 4.28642053 } ] 
-
     context 'wr computation' do
-      examples.each do |ex|
+      fp_examples.each do |ex|
         it "complies on #{ex[:point]} fixed point" do
           Its90.wr(ex[:t90]).should be_within(0.00000001).of(ex[:wr])
         end
@@ -29,7 +22,7 @@ describe Its90 do
     end
 
     context 't90r computation' do
-      examples.each do |ex|
+      fp_examples.each do |ex|
         it "complies on #{ex[:point]} fixed point" do
           Its90.t90r(ex[:wr]).should be_within(0.00013).of(ex[:t90])
         end
@@ -54,23 +47,14 @@ describe Its90 do
         end
       end
 
-      examples = [ {t90: -189.3442, wdev: 0.000111482},
-                   {t90: -100.0000, wdev: 0.000053258},
-                   {t90:  -38.8344, wdev: 0.000019889},
-                   {t90:    0.0000, wdev: 0.000000005} ]
-      examples.each do |ex|
+      r4_examples.each do |ex|
         it "complies with NIST SP250-81 sample on range 4, #{ex[:t90]} Celsius" do
           sprt = stub(range: 4, a: -1.2579994e-04, b: 1.0678395e-05)
           Its90.wdev(sprt, ex[:t90]).should be_within(0.00000001).of(ex[:wdev])
         end
       end
       
-      examples = [ {t90:   0.000, wdev:  0.000000007},
-                   {t90: 100.000, wdev: -0.000065852},
-                   {t90: 231.928, wdev: -0.000152378},
-                   {t90: 419.527, wdev: -0.000271813},
-                   {t90: 660.323, wdev: -0.000413567} ]
-      examples.each do |ex|
+      r6_examples.each do |ex|
         it "complies with NIST SP250-81 sample on range 6, #{ex[:t90]} Celsius" do
           sprt = stub(range: 6, a: -1.6462789e-04, b: -8.4598339e-06, c: 1.8898584e-06)
           Its90.wdev(sprt, ex[:t90]).should be_within(0.00000001).of(ex[:wdev])
@@ -80,13 +64,10 @@ describe Its90 do
   end
 
   context 'temperature function' do
-    examples = [ { r: 25.319871, t:   0.010},
-                 { r: 47.922451, t: 231.928},
-                 { r: 65.039218, t: 419.527} ]
-    examples.each do |ex|
+    t90_examples.each do |ex|
       it "complies with IPQ cert. 501.20/1241312 range 7, #{ex[:t]} Celsius" do
         sprt = stub(range: 7, rtpw: 25.319871, a: -1.2134e-04, b: -9.9190e-06)
-        Its90.t90(sprt, ex[:r]).should be_within(0.0001).of(ex[:t])
+        Its90.t90(sprt, ex[:res]).should be_within(0.0001).of(ex[:t90])
       end
     end
   end
