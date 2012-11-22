@@ -4,7 +4,11 @@ class Iec60751
   MAX_ITERATIONS =   50
   VALID_RANGE    = -200.10..850.10
 
-  def self.res(t, r0 = 100.0, a = 3.9083e-3, b = -5.7750e-07, c = -4.1830e-12, skip_check = false)
+  def self.res(t, r0 = nil, a = nil, b = nil, c = nil, skip_check = false)
+    r0 ||= 100.0
+    a  ||=   3.9083e-03
+    b  ||=  -5.7750e-07
+    c  ||=  -4.1830e-12
     raise RangeError unless skip_check || VALID_RANGE.include?(t)
     if t < 0.00
       r0*(1 + a*t + b*t**2 + c*(t - 100)*t**3)
@@ -13,7 +17,11 @@ class Iec60751
     end
   end
   
-  def self.t90(r, r0 = 100.0, a = 3.9083e-3, b = -5.7750e-07, c = -4.1830e-12, max_error = 0.0001)
+  def self.t90(r, r0 = nil, a = nil, b = nil, c = nil, max_error = 0.0001)
+    r0 ||= 100.0
+    a  ||=   3.9083e-03
+    b  ||=  -5.7750e-07
+    c  ||=  -4.1830e-12
     return 0.00 if r == r0
     t_calc = approximate_t90(r, r0, a, b, c)
     MAX_ITERATIONS.times do
