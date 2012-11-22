@@ -1,7 +1,7 @@
 # ALL TEMPERATURES IN CELSIUS
 #
-# All type equations from NIST ITS-90 Thermocouple Database except type C, which was derived from table given on 
-# OMEGA catalog tables for type C, based on NIST Monograph 175, revised for ITS-90, pages Z218-220
+# All type equations from NIST ITS-90 Thermocouple Database except emf for type C, which was derived from table 
+# given on OMEGA catalog tables for type C, based on NIST Monograph 175, revised for ITS-90, pages Z218-220.
 class Iec60584
   MAX_ITERATIONS = 20
   EMF_EQUATIONS  = 
@@ -187,8 +187,8 @@ class Iec60584
   }
 
 
-  def self.emf(tc, t, skip_check = false)
-    equations = EMF_EQUATIONS[tc.kind] 
+  def self.emf(t, kind = :k, skip_check = false)
+    equations = EMF_EQUATIONS[kind] 
     equations.each do |equation|
       if skip_check
         range = open_range(equations, equation)
@@ -204,23 +204,23 @@ class Iec60584
     raise RangeError
   end
 
-  def self.t90(tc, e, max_error = 0.001)
-    t  = t90r(tc, e, max_error)
-    t += correction(tc, t)
-    T90_EQUATIONS[tc.kind].each do |equation|
-      return t if equation[:range].include?(emf(tc, t, true))
+  def self.t90(e, kind = :k, a0 = 0.0, a1 = 0.0, a2 = 0.0, a3 = 0.0, max_error = 0.001)
+    t  = t90r(e, kind, max_error)
+    t += correction(t, a0, a1, a2, a3)
+    T90_EQUATIONS[kind].each do |equation|
+      return t if equation[:range].include?(emf(t, kind, true))
     end
     raise RangeError
   end
 
-  def self.t90r(tc, e, max_error = 0.001)
+  def self.t90r(e, kind = :k, max_error = 0.001)
     return 0.0 if e == 0.0
-    t_calc = approximate_t90r(tc, e)
+    t_calc = approximate_t90r(e, kind)
     e_calc = e
     MAX_ITERATIONS.times do
-      e_calc = emf(tc, t_calc, true)
+      e_calc = emf(t_calc, kind, true)
       e_aux = 1.001 * e_calc
-      t_aux  = approximate_t90r(tc, e_aux)
+      t_aux  = approximate_t90r(e_aux, kind)
       slope  = (e_calc - e_aux) / (t_calc - t_aux)
       return t_calc if (e_calc - e).abs < slope * max_error
       t_calc -= (e_calc - e) / slope
@@ -228,13 +228,13 @@ class Iec60584
     raise StopIteration
   end
 
-  def self.correction(tc, t)
-    tc.a3*t**3 + tc.a2*t**2 + tc.a1*t + tc.a0
+  def self.correction(t, a0 = 0.0, a1 = 0.0, a2 = 0.0, a3 = 0.0)
+    a3*t**3 + a2*t**2 + a1*t + a0
   end
 
 private
-  def self.approximate_t90r(tc, e)
-    equations = T90_EQUATIONS[tc.kind] 
+  def self.approximate_t90r(e, kind)
+    equations = T90_EQUATIONS[kind] 
     equations.each do |equation|
       range = open_range(equations, equation)
       return equation[:d].each_with_index.map{ |d,i| d*e**i }.inject(:+) if range.include? e

@@ -57,25 +57,27 @@ class Its90
     end
   end
 
-  def self.wdev(sprt, t90)
-    equation = WDEV_EQUATIONS[sprt.range - 1]
+  def self.wdev(t90, range, a  = 0.0, b  = 0.0, c  = 0.0, d  = 0.0, w660 = 0.0,
+                            c1 = 0.0, c2 = 0.0, c3 = 0.0, c4 = 0.0, c5   = 0.0)
+    equation = WDEV_EQUATIONS[range - 1]
     raise RangeError unless equation[:valid].include? t90
-
     wr_t90 = wr(t90)
-    case sprt.range
+    case range
     when 1..4
-      wdev  = sprt.a * (wr_t90 - 1)
-      wdev += sprt.range == 4 ? sprt.b * (wr_t90 - 1) * Math.log(wr_t90) : sprt.b * (wr_t90 - 1)**2
-      wdev += equation[:k].each_with_index.map{ |k, i| eval("sprt.#{k}") * Math.log(wr_t90)**(i + equation[:n]) }.inject(:+) || 0
+      wdev  = a * (wr_t90 - 1)
+      wdev += range == 4 ? b * (wr_t90 - 1) * Math.log(wr_t90) : b * (wr_t90 - 1)**2
+      wdev += equation[:k].each_with_index.map{ |k, i| eval("#{k}") * Math.log(wr_t90)**(i + equation[:n]) }.inject(:+) || 0
     when 5..11
-      wdev   = sprt.d * (wr_t90 - sprt.w660)**2 if equation[:k].delete('d')
+      wdev   = d * (wr_t90 - w660)**2 if equation[:k].delete('d')
       wdev ||= 0
-      wdev  += equation[:k].each_with_index.map{ |k, i| eval("sprt.#{k}") * (wr_t90 - 1)**(i+1) }.inject(:+)
+      wdev  += equation[:k].each_with_index.map{ |k, i| eval("#{k}") * (wr_t90 - 1)**(i+1) }.inject(:+)
     end
   end
 
-  def self.t90(sprt, r)
-    w = r / sprt.rtpw
-    t90r(w - wdev(sprt, t90r(w)))
+  def self.t90(res, range,  rtpw = 25.0,
+                            a  = 0.0, b  = 0.0, c  = 0.0, d  = 0.0, w660 = 0.0,
+                            c1 = 0.0, c2 = 0.0, c3 = 0.0, c4 = 0.0, c5   = 0.0)
+    w = res / rtpw
+    t90r(w - wdev(t90r(w), range, a, b, c, d, w660, c1, c2, c3, c4, c5))
   end
 end
