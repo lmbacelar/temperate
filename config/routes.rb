@@ -1,4 +1,8 @@
 Temperate::Application.routes.draw do
+
+
+  get 'iec60751/t90' => 'iec60751#t90'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
